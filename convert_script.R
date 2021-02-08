@@ -3,6 +3,7 @@
 # libraries
 library("readxl")
 library("tidyverse")
+library("readxl")
 
 ##### useful functions #######
 
@@ -25,7 +26,13 @@ delta<-function(a,b,c){
 }
 
 ###### Parameters #######
-mol_to_weight <- read_csv("molecule_tables.csv") 
+mol_to_weight <- read_excel("molecule_tables.xlsx", sheet = "molecule_tables",
+                            col_types=c("text", "numeric", "numeric", "numeric",
+                                        "numeric","numeric","numeric"), na="NA")
+
+alt_names <- read_excel("molecule_tables.xlsx", sheet = "alt_name",
+                            col_types=c("text", "numeric", "numeric", "numeric")
+                        , na="NA")
 
 sample_list=c("sample11.csv",
               "sample37.csv",
@@ -65,9 +72,17 @@ for (sample_file in sample_list){
       mutate(lin_res=((as.numeric(lin_res)/180)*200)*10)
     
     # reshape and print results
-    quad_table <- sample_t4 %>% select(-quad_a, -quad_b, -quad_c, -lin_a, -lin_b)
+    res_table <- sample_t4 %>% select(-quad_a, -quad_b, -quad_c, -lin_a, -lin_b, -norm)
+    alt_table <- inner_join(res_table,alt_names) %>% rowwise() %>%
+      filter(RT_start <= `RT [min]` && `RT [min]` <= RT_end) %>% 
+      select(-RT_start, -RT_end)
+    
+    res_table <- left_join(res_table, alt_table)
+    
+    
+    
     out_file <- paste("res", sample_file, sep="_")
-    write_csv(quad_table, out_file)
+    write_csv(res_table, out_file)
 }
 
 
