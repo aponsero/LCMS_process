@@ -10,3 +10,5 @@ The imput files for the following should be as a csv file with at least the foll
 - RT [min]	
 
 - Area
+
+Please, update the list of file to process in the script before running it.
