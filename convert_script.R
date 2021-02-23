@@ -1,9 +1,8 @@
 # script to convert LCMS raw imputs into the concentration outputs
 
 # libraries
-library("readxl")
 library("tidyverse")
-library("readxl")
+library("xlsx")
 
 ##### useful functions #######
 
@@ -34,17 +33,17 @@ alt_names <- read_excel("molecule_tables.xlsx", sheet = "alt_name",
                             col_types=c("text", "numeric", "numeric", "numeric")
                         , na="NA")
 
-sample_list=c("sample11.csv",
-              "sample37.csv",
-              "sample42.csv",
-              "sample60.csv",
-              "sample69.csv")
+name_file <- "corrected_subset_Dollwin.xlsx"
+
+sample_list <- read_excel("subset_list.xlsx") %>% pull(ID)
 
 ##### processing samples data ##########
 
 # import samples
-for (sample_file in sample_list){
-    sample <- read_csv(sample_file) %>% separate(Chromatogram, into=c("EIC", "molecule_weight", "All", "MS"), sep=" ", remove=FALSE) %>%
+for (sample_ID in sample_list){
+    sample_name <- as.character(sample_ID)
+    sample_name <- "52"
+    sample <- read_excel(name_file, sheet= sample_name) %>% separate(Chromatogram, into=c("EIC", "molecule_weight", "All", "MS"), sep=" ", remove=FALSE) %>%
       select(Chromatogram,`RT [min]`, Area, molecule_weight)
     
     # correct molecule weights
@@ -60,7 +59,7 @@ for (sample_file in sample_list){
     
     # solve quadratic
     sample_t3 <- sample_t2 %>% filter(!molecule_weight==909) %>% rowwise() %>% 
-      mutate(quad=result_quad(quad_a, quad_b, (quad_c-norm))) %>%
+      mutate(quad=ifelse(!is.na(quad_a), result_quad(quad_a, quad_b, (quad_c-norm)), NA)) %>%
       separate(quad, into=c("quad_res1", "quad_res2"), sep=";")
     
     # solve linear
@@ -79,10 +78,11 @@ for (sample_file in sample_list){
     
     res_table <- left_join(res_table, alt_table)
     
+    res_table <- data.frame(res_table)
+    name_out <- paste("res", sample_ID, sep="")
     
+    write.xlsx(res_table, "results.xlsx", sheetName = name_out, append=TRUE, row.names = FALSE, showNA=FALSE)
     
-    out_file <- paste("res", sample_file, sep="_")
-    write_csv(res_table, out_file)
 }
 
 
