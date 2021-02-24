@@ -1,8 +1,9 @@
 # script to convert LCMS raw imputs into the concentration outputs
 
 # libraries
-library("tidyverse")
-library("xlsx")
+library(tidyverse)
+library(xlsx)
+library(readxl)
 
 ##### useful functions #######
 
@@ -33,16 +34,15 @@ alt_names <- read_excel("molecule_tables.xlsx", sheet = "alt_name",
                             col_types=c("text", "numeric", "numeric", "numeric")
                         , na="NA")
 
-name_file <- "corrected_subset_Dollwin.xlsx"
+name_file <- "test_data.xlsx"
 
-sample_list <- read_excel("subset_list.xlsx") %>% pull(ID)
+sample_list <- read_excel("sample_list.xlsx") %>% pull(ID)
 
 ##### processing samples data ##########
 
 # import samples
 for (sample_ID in sample_list){
     sample_name <- as.character(sample_ID)
-    sample_name <- "52"
     sample <- read_excel(name_file, sheet= sample_name) %>% separate(Chromatogram, into=c("EIC", "molecule_weight", "All", "MS"), sep=" ", remove=FALSE) %>%
       select(Chromatogram,`RT [min]`, Area, molecule_weight)
     

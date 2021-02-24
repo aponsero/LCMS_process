@@ -11,5 +11,9 @@ The imput file for the following should be as a xlsx file with a sheet for each 
 
 - Area
 
-The list of sample_ID to process should be given through a file called "subset_list.xlsx" with one column 'ID'. An example file is provided in this repo.
+The list of sample_ID to process should be given through a file called "sample_list.xlsx" with one column 'ID'.
+
+# Test data
+An example data (artificial dataset containing randomly generated values) and sample list is provided in the "Test" folder
+
 
