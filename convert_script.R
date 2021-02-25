@@ -34,7 +34,7 @@ alt_names <- read_excel("molecule_tables.xlsx", sheet = "alt_name",
                             col_types=c("text", "numeric", "numeric", "numeric")
                         , na="NA")
 
-name_file <- "test_data.xlsx"
+name_file <- "corrected_subset_Dollwin.xlsx"
 
 sample_list <- read_excel("sample_list.xlsx") %>% pull(ID)
 
@@ -42,6 +42,7 @@ sample_list <- read_excel("sample_list.xlsx") %>% pull(ID)
 
 # import samples
 for (sample_ID in sample_list){
+    sample_ID <- "175"
     sample_name <- as.character(sample_ID)
     sample <- read_excel(name_file, sheet= sample_name) %>% separate(Chromatogram, into=c("EIC", "molecule_weight", "All", "MS"), sep=" ", remove=FALSE) %>%
       select(Chromatogram,`RT [min]`, Area, molecule_weight)
@@ -54,7 +55,7 @@ for (sample_ID in sample_list){
     sample_t1 <- left_join(sample,mol_to_weight,by = "molecule_weight")
     
     # normalized by standard
-    stand <- sample_t1 %>% filter(molecule_weight==909) 
+    stand <- sample_t1 %>% filter((molecule_weight==909)&(`RT [min]`<20)) 
     sample_t2 <- sample_t1 %>% mutate(norm=Area/stand$Area)
     
     # solve quadratic
@@ -85,6 +86,6 @@ for (sample_ID in sample_list){
     
 }
 
-
+pivot_longer()
 
 
